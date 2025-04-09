@@ -28,8 +28,10 @@ Imagine being able to bridge 1 unified setup where you can connect all your cust
  
 ## Demo
  
+![arcknowledge demo cursor](./demo_video/arcknowledge-demo-1.gif) 
+![arcknowledge demo cursor](./demo_video/arcknowledge-demo-2.gif) 
 ![arcknowledge demo cline](./demo-cline.gif) 
- [Video demo](./demo video)
+ 
 [See mcp cursor video](https://github.com/dragonjump/mcp-arcknowledge/tree/main/demo%20video)
 ## Setup Installation
 
@@ -42,7 +44,7 @@ cd mcp-arcknowledge
  
 2. **Configure endpoints** 
 Make a copy or change`knowledge_document_sources.json`.
-See `sample endpoint` folder for references on current knowledge endpoints api schema supported. You may change the code as you wish to fit your need.
+See `sample_endpoint` folder for references on current knowledge endpoints api schema supported. You may change the code as you wish to fit your need.
 
 3. **Connect to the MCP server**
 

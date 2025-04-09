@@ -1,0 +1,25 @@
+{
+    "mcpServers": {
+        "mcp-arcknowledge": {
+            "timeout": 60,
+            "command": "uv",
+            "args": [
+                "--directory",
+                "C:/Users/Acer/OneDrive/Your-drive",
+                "run",
+                "main.py"
+            ],
+            "env": {
+                "KNOWLEDGE_DOCUMENT_PATH": "C:/Users/Acer/OneDrive/Your-drive/testcustomother.json"
+            },
+            "transportType": "stdio",
+            "autoApprove": [
+                "update_knowledge_document_source",
+                "list_knowledge_document_sources",
+                "load_image",
+                "query_knowledge_base",
+                "add_new_knowledge_document_source"
+            ]
+        }
+    }
+}
