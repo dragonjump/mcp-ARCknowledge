@@ -1,0 +1,18 @@
+{
+    "PRODUCT_RAG_ENDPOINTS": {
+        "url": "https://n8n.jom.lol/webhook/rag-product-knowledge",
+        "description": "This endpoints helps you understand about the product and services we offer      " ,
+        "apikey": "sk-nsELX3boO1-gujhfUh8vMFHCUPBr4ABjqkKuEQ-52T59gAA"
+    },
+    
+    "BUSINESS_RAG_ENDPOINTS": {
+        "url": "https://n8n.jom.lol/webhook/rag-business-knowledge",
+        "description": "This endpoints helps you understand about the business and our company  ",
+        "apikey": "sk-nsELX3boO1-gujhfUh8vMFHCUPBr4ABjqkKuEQ-52T59gAA"
+    } ,
+    "PERSONAL_RAG_ENDPOINTS": {
+        "url": "https://n8n.jom.lol/webhook/rag-personal-knowledge",
+        "description": "This endpoints helps you understand about the owner sean lon  ",
+        "apikey": "sk-nsELX3boO1-gujhfUh8vMFHCUPBr4ABjqkKuEQ-52T59gAA"
+    } 
+}

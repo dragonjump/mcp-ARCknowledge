@@ -1,131 +1,134 @@
-from fastmcp import FastMCP
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from pydantic import BaseModel, Field
 import requests
-from urllib.parse import urlparse
 import json
+import os
+import time
+from urllib.parse import urlparse
+from fastmcp import FastMCP, Image 
 
 # Initialize FastMCP server
 mcp = FastMCP(
-    "MCP Master Webhook Agents",
-    description="Your custom webhook knowledge base tool-use or RAG (Retrieval-Augmented Generation) server for managing document retrieval and querying",
-    dependencies=["requests", "pydantic"]
-) 
+    "ArcKnowledge",
+    description="ArcKnowledge - Bridge MCP to your custom knowledge base api webhooks. Supports text and image queries.",
+    dependencies=["requests", "pydantic"],
+    tool_prefix="mcp_arcknowledge", log_level="ERROR")  
 
-# Add an addition tool
-@mcp.tool()
-def add(a: int, b: int) -> int:
-    """Add two numbers"""
-    return a + b
+# Store for knowledge document sources
+knowledge_document_sources: Dict[str, Dict[str, str]] = {}
 
-
-# Add a dynamic greeting resource
-@mcp.resource("greeting://{name}")
-def get_greeting(name: str) -> str:
-    """Get a personalized greeting"""
-    return f"Hello, {name}!"
-
-
-# Store for document sources
-document_sources: Dict[str, str] = {}
-
-class DocumentSource(BaseModel):
-    """Model for document source configuration"""
-    url: str = Field(..., description="URL of the document source")
-    description: Optional[str] = Field(None, description="Optional description of the source")
-
-class QueryPayload(BaseModel):
-    """Model for query payload"""
+class QueryRequest(BaseModel):
+    """Model for query request with image support"""
     query: str = Field(..., description="The query message to process")
+    image: Optional[str] = Field(None, description="Optional base64 encoded image data")
+
+class KnowledgeDocumentSource(BaseModel):
+    """Model for knowledge document source configuration"""
+    url: str = Field(..., description="URL of the knowledge document source")
+    description: Optional[str] = Field(None, description="Optional description of the source")
+    apikey: Optional[str] = Field(None, description="Optional apikey of the source")
+
+def load_initial_knowledge_sources(knowledge_document_path: Optional[str] = None) -> None:
+    """Load initial knowledge document sources from file"""
+    KNOWLEDGE_DOCUMENT_PATH = knowledge_document_path or os.getenv('KNOWLEDGE_DOCUMENT_PATH', 'knowledge_document_sources.json')
+
+    try:
+        with open(KNOWLEDGE_DOCUMENT_PATH, 'r') as f:
+            sources = json.load(f)
+        for source_id, source_data in sources.items():
+            if isinstance(source_data, dict) and 'url' in source_data:
+                knowledge_document_sources[source_id] = source_data
+        print(f"Loaded knowledge sources: {len(knowledge_document_sources)} sources")
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        print(f"No initial knowledge document sources found at {KNOWLEDGE_DOCUMENT_PATH}: {str(e)}")
 
 @mcp.tool()
-def set_document_source(source: Dict[str, str]) -> str:
+def update_knowledge_document_source(knowledge_document_path: str) -> str:
     """
-    Register a new document source URL for RAG operations and save to JSON file
+    Update the knowledge document source URL with custom config JSON file
     
     Args:
-        source: Dictionary containing url and optional description
+        knowledge_document_path: Path to the JSON config file
     
     Returns:
         str: Confirmation message
     """
-    if 'url' not in source:
-        return "Error: URL is required"
+    if not isinstance(knowledge_document_path, str) or not knowledge_document_path.strip():
+        return "Error: knowledge_document_path is required and must be a non-empty string"
     
     try:
-        # Load existing sources from file
-        try:
-            with open('document_sources.json', 'r') as f:
-                file_sources = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
-            file_sources = {}
-        
-        # Generate new source ID
-        source_id = str(len(file_sources) + 1)
-        
-        # Add to memory dictionary
-        document_sources[source_id] = source['url']
-        
-        # Add to file sources
-        file_sources[source_id] = {
-            "url": source['url'],
-            "description": source.get('description', '')
-        }
-        
-        # Save back to file
-        with open('document_sources.json', 'w') as f:
-            json.dump(file_sources, f, indent=4)
-        
-        return f"Document source registered with ID: {source_id}"
+        load_initial_knowledge_sources(knowledge_document_path.strip())
+        return f"Successfully updated knowledge document source to: {knowledge_document_path}"
     except Exception as e:
-        return f"Error saving to file: {str(e)}"
+        return f"Error updating source config: {str(e)}"
 
 @mcp.tool()
-def list_document_sources() -> Dict[str, str]:
+def list_knowledge_document_sources() -> Dict[str, Dict[str, str]]:
     """
-    List all registered document sources
+    List all registered knowledge document sources
     
     Returns:
-        Dict[str, str]: Dictionary of source IDs and their URLs
+        Dict[str, Dict[str, str]]: Dictionary of source IDs mapping to their properties
     """
-    return document_sources
+    if not knowledge_document_sources:
+        load_initial_knowledge_sources()
+    return knowledge_document_sources
 
+ 
 @mcp.tool()
-def query_rag(query: str, source_ids: Optional[List[str]] = None) -> str:
+def load_image(path: str) -> Image:
+    """Load an image from disk"""
+    # FastMCP handles reading and format detection
+    return Image(path=path)
+@mcp.tool()
+def query_knowledge_base(query: str, source_ids: List[str] = [], image:  str  = '') -> str:
     """
-    Query the specified document sources using RAG
+    Query the specified knowledge document sources using knowledge base
     
     Args:
-        query: The search query
-        source_ids: Optional list of source IDs to query (if None, queries all sources)
+        query: The search query or question user ask
+        source_ids: list of source IDs to query (if None, queries all sources)
+        image: base64 encoded image string to include in the query
     
     Returns:
         str: Retrieved and processed results
     """
-    if not document_sources:
-        return "Error: No document sources registered"
-    
-    sources_to_query = document_sources
-    if source_ids:
-        sources_to_query = {id: document_sources[id] 
-                           for id in source_ids 
-                           if id in document_sources}
-        if not sources_to_query:
-            return "Error: No valid source IDs provided"
+    if not knowledge_document_sources:
+        return "Error: No knowledge document sources registered"
     
     results = []
-    for source_id, url in sources_to_query.items():
+    sources_to_query = knowledge_document_sources
+    if source_ids:
+        sources_to_query = {id: knowledge_document_sources[id] 
+                           for id in source_ids 
+                           if id in knowledge_document_sources}
+        if not sources_to_query:
+            sources_to_query = knowledge_document_sources
+            results.append("Warning: No valid source IDs provided, querying all sources")
+    
+    for source_id, source_info in sources_to_query.items():
         try:
-            # Send POST request with chatInput payload
             headers = {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                "Accept": "application/json",
             }
-            payload = {"chatInput": query}
-            response = requests.post(url, json=payload, headers=headers)
+            
+            if source_info.get("apikey"):
+                headers["x-api-key"] = source_info["apikey"]
+                
+            # Construct payload with query and optional image
+            payload = QueryRequest(query=query, image=image).dict(exclude_none=True)
+                
+            response = requests.post(source_info["url"], json=payload, headers=headers)
             
             if response.status_code == 200:
-                results.append(f"Source {source_id}: {response.text}")
+                try:
+                    # Try to parse and format JSON response
+                    resp_data = response.json()
+                    results.append(f"Source {source_id}: {json.dumps(resp_data, indent=2)}")
+                except json.JSONDecodeError:
+                    # Fallback to raw text if not JSON
+                    results.append(f"Source {source_id}: {response.text}")
             else:
                 results.append(f"Source {source_id}: Failed to retrieve content. Status code: {response.status_code}")
         except Exception as e:
@@ -133,83 +136,39 @@ def query_rag(query: str, source_ids: Optional[List[str]] = None) -> str:
     
     return "\n".join(results)
 
-@mcp.prompt()
-def rag_query_prompt(query: str) -> str:
-    """Create a prompt template for RAG queries"""
-    return f"""Please help me find information about the following query:
-Query: {query}
-
-Available document sources:
-{list_document_sources()}
-
-How would you like to proceed with the search?"""
-
 @mcp.tool()
-def process_post_query(payload: QueryPayload, url: str = "https://api.example.com/process") -> str:
+def add_new_knowledge_document_source(url: str, description: str = '', apikey: str= '') -> str:
     """
-    Process a POST request with a query payload
+    Add a new knowledge document source URL and append to existing sources
     
     Args:
-        payload: QueryPayload object containing the query message
-        url: Optional URL to send the POST request to (defaults to example URL)
-    
-    Returns:
-        str: Response from the server
-    """
-    try:
-        headers = {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
-        
-        data = {"query": payload.query}
-        response = requests.post(url, json=data, headers=headers)
-        
-        if response.status_code == 200:
-            return f"Successfully processed query. Response: {response.text}"
-        else:
-            return f"Error processing query. Status code: {response.status_code}, Response: {response.text}"
-    except Exception as e:
-        return f"Error making POST request: {str(e)}"
-
-@mcp.tool()
-def load_document_sources_from_file(file_path: str = "document_sources.json") -> str:
-    """
-    Load document sources from a JSON file
-    
-    Args:
-        file_path: Path to the JSON file containing document sources (default: document_sources.json)
-    
+        url: URL of the knowledge document source
+        description: description of the source 
+        apikey: apikey of the source
     Returns:
         str: Confirmation message
     """
     try:
-        with open(file_path, 'r') as f:
-            sources = json.load(f)
+        result = urlparse(url)
+        if not all([result.scheme, result.netloc]):
+            return "Error: Invalid URL format"
             
-        if not isinstance(sources, dict):
-            return "Error: JSON file must contain a dictionary of sources"
-            
-        # Add each source to the document_sources dictionary
-        for source_id, source_data in sources.items():
-            if isinstance(source_data, str):
-                # If the source is just a URL string
-                document_sources[source_id] = source_data
-            elif isinstance(source_data, dict) and 'url' in source_data:
-                # If the source is a dictionary with url
-                document_sources[source_id] = source_data['url']
-            else:
-                return f"Error: Invalid source format for ID {source_id}"
-                
-        return f"Successfully loaded {len(sources)} document sources from {file_path}"
-    except FileNotFoundError:
-        return f"Error: File {file_path} not found"
-    except json.JSONDecodeError:
-        return f"Error: Invalid JSON format in {file_path}"
+        source = KnowledgeDocumentSource(
+            url=url,
+            description=description,
+            apikey=apikey
+        )
+        
+        uniqueid = str(int(time.time()))
+        knowledge_document_sources[uniqueid] = source.dict(exclude_none=True)
+        return f"Knowledge document source added with ID: {uniqueid}"
     except Exception as e:
-        return f"Error loading document sources: {str(e)}"
+        return f"Error adding new source: {str(e)}"
 
 if __name__ == "__main__":
+    # Load initial sources
+    load_initial_knowledge_sources()
+    # Start FastMCP server
     mcp.run() 
 
   
