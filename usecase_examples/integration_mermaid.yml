@@ -1,0 +1,38 @@
+flowchart TD
+  subgraph Your_Computer["Your Computer"]
+    MCP_Host(["MCP Client (Claude, Cursor, Cline)"]) 
+    MCP_Server_Whatsapp(["MCP Server - Whatsapp  "])
+    MCP_Server_ARCknowledge(["MCP Server - ARCknowledge  "]) 
+  end
+
+  subgraph Config
+    Remote_Resource_Config(["Knowledge Config.json"]) 
+  end
+
+  subgraph WhatsappWeb
+    Whatsapp_Get_Messsage(["Get Message"])
+    Whatsapp_Send_Messsage(["Send Message"]) 
+  end 
+  subgraph Manage
+    Remote_Tool_2(["Add Knowledgesource"])  
+  end
+  subgraph Query
+    Remote_Tool_1(["Query Knowledgesource"]) 
+    Remote_Resource_1(["Product Knowledgebase"])
+    Remote_Resource_2(["Business Knowledgebase"])
+    Remote_Resource_N(["Personal Knowledgebase"])
+  end
+ 
+  MCP_Host -- "MCP Protocol" --> MCP_Server_Whatsapp
+  MCP_Server_Whatsapp -- "Tool" --> Whatsapp_Get_Messsage
+  MCP_Server_Whatsapp -- "Tool" --> Whatsapp_Send_Messsage
+  MCP_Host -- "MCP Protocol" --> MCP_Server_ARCknowledge
+ 
+  MCP_Server_ARCknowledge -- "Config" --> Remote_Resource_Config
+  MCP_Server_ARCknowledge -- "Tool" --> Remote_Tool_2
+  MCP_Server_ARCknowledge -- "Tool" --> Remote_Tool_1
+  Remote_Tool_1 -- "Web APIs" --> Remote_Resource_1
+  Remote_Tool_1 -- "Web APIs" --> Remote_Resource_2
+  Remote_Tool_1 -- "Web APIs" --> Remote_Resource_N
+
+ 

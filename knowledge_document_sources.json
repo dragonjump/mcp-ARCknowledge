@@ -12,7 +12,7 @@
     } ,
     "PERSONAL_RAG_ENDPOINTS": {
         "url": "https://n8n.jom.lol/webhook/rag-personal-knowledge",
-        "description": "This endpoints helps you understand about the owner sean lon  ",
+        "description": "This endpoints helps you understand about the owner alberto  ",
         "apikey": "sk-nsELX3boO1-gujhfUh8vMFHCUPBr4ABjqkKuEQ-52T59gAA"
     } 
 }

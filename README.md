@@ -102,19 +102,8 @@ If you're running this project on Windows, be aware that `go-sqlite3` requires *
    We recommend using [MSYS2](https://www.msys2.org/) to install a C compiler for Windows. After installing MSYS2, make sure to add the `ucrt64\bin` folder to your `PATH`.  
    → A step-by-step guide is available [here](https://code.visualstudio.com/docs/cpp/config-mingw).
 
-2. **Enable CGO and run the app**
-
-   ```bash
-   cd whatsapp-bridge
-   go env -w CGO_ENABLED=1
-   go run main.go
-   ```
-
-Without this setup, you'll likely run into errors like:
-
-> `Binary was compiled with 'CGO_ENABLED=0', go-sqlite3 requires cgo to work.`
-
-
+ 
+ 
 ## Architecture Overview
 
 This application consists of simple main component:
