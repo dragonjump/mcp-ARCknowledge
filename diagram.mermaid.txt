@@ -1,0 +1,27 @@
+flowchart TD
+  subgraph Your_Computer["Your Computer"]
+    MCP_Host(["MCP Client (Claude, Cursor, Cline)"])
+ 
+    MCP_Server_ARCknowledge(["MCP Server - ARCknowledge  "])
+ 
+ 
+  end
+
+  subgraph Config
+    Remote_Resource_Config(["Knowledge Config.json"]) 
+  end
+
+  subgraph Internet
+    Remote_Resource_1(["Remote Knowledge 1"])
+    Remote_Resource_2(["Remote Knowledge 2"])
+    Remote_Resource_N(["Remote Knowledge N"])
+  end
+ 
+  MCP_Host -- "MCP Protocol" --> MCP_Server_ARCknowledge
+ 
+  MCP_Server_ARCknowledge -- "Config" --> Remote_Resource_Config
+  MCP_Server_ARCknowledge -- "Web APIs" --> Remote_Resource_1
+  MCP_Server_ARCknowledge -- "Web APIs" --> Remote_Resource_2
+  MCP_Server_ARCknowledge -- "Web APIs" --> Remote_Resource_N
+
+ 

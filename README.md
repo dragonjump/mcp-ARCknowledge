@@ -1,6 +1,9 @@
 # MCP ArcKnowledge
 
-![arc knowledge MCP](./logo.jpg)
+![arc knowledge MCP](https://github.com/dragonjump/mcp-ARCknowledge/raw/main/logo.jpg)
+
+## How it works?
+![arc knowledge diagram](https://github.com/dragonjump/mcp-ARCknowledge/raw/main/diagram.png)
 
 
 This is a Model Context Protocol (MCP) server for your custom webhook endpoints (knowledgebase).
@@ -28,9 +31,9 @@ Imagine being able to bridge 1 unified setup where you can connect all your cust
  
 ## Demo
  
-![arcknowledge demo cursor](./demo_video/arcknowledge-demo-1.gif) 
-![arcknowledge demo cursor](./demo_video/arcknowledge-demo-2.gif) 
-![arcknowledge demo cline](./demo-cline.gif) 
+![arcknowledge demo cursor](https://github.com/dragonjump/mcp-ARCknowledge/raw/main/demo_video/arcknowledge-demo-1.gif) 
+![arcknowledge demo cursor](https://github.com/dragonjump/mcp-ARCknowledge/raw/main/demo_video/arcknowledge-demo-2.gif) 
+![arcknowledge demo cline](https://github.com/dragonjump/mcp-ARCknowledge/raw/main/demo-cline.gif) 
  
 [See mcp cursor video](https://github.com/dragonjump/mcp-arcknowledge/tree/main/demo%20video)
 ## Setup Installation
