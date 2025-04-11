@@ -36,6 +36,8 @@ Imagine being able to bridge 1 unified setup where you can connect all your cust
 ![arcknowledge demo cline](https://github.com/dragonjump/mcp-ARCknowledge/raw/main/demo-cline.gif) 
  
 [See mcp cursor video](https://github.com/dragonjump/mcp-arcknowledge/tree/main/demo%20video)
+
+
 ## Setup Installation
 
 1.**Clone repo**  
