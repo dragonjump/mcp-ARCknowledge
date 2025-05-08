@@ -1,5 +1,6 @@
 # MCP ArcKnowledge
 
+[![smithery badge](https://smithery.ai/badge/@dragonjump/mcp-ARCknowledge)](https://smithery.ai/server/@dragonjump/mcp-ARCknowledge)
 ![arc knowledge MCP](https://github.com/dragonjump/mcp-ARCknowledge/raw/main/logo.jpg)
 
 ## How it works?
@@ -39,6 +40,14 @@ Imagine being able to bridge 1 unified setup where you can connect all your cust
 
 
 ## Setup Installation
+
+### Installing via Smithery
+
+To install ArcKnowledge for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@dragonjump/mcp-ARCknowledge):
+
+```bash
+npx -y @smithery/cli install @dragonjump/mcp-ARCknowledge --client claude
+```
 
 1.**Clone repo**  
 ```bash
