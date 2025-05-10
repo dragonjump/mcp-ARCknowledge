@@ -1,0 +1,23 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required: []
+    properties:
+      knowledgeDocumentPath:
+        type: string
+        default: ""
+        description: Path to custom JSON file containing knowledge document sources
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({
+      command: 'python',
+      args: ['main.py'],
+      env: config.knowledgeDocumentPath ? { KNOWLEDGE_DOCUMENT_PATH: config.knowledgeDocumentPath } : undefined
+    })
+  exampleConfig:
+    knowledgeDocumentPath: knowledge_document_sources.json
